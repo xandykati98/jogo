@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { gameState } from '../stores/game';
-	console.log(gameState)
+	const { isMagicTreeOpen } = gameState.interface;
 </script>
 
-<div class="magic-tree" class:open={gameState.interface.isMagicTreeOpen}>hi</div>
+<div class="magic-tree" class:open={$isMagicTreeOpen}>hi</div>
 
 <style lang="scss">
 	.magic-tree {

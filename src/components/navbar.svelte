@@ -1,10 +1,12 @@
 <script lang="ts">
-	import coin from '$lib/coin.svg';
-	import food from '$lib/food.svg';
+	import coinIcon from '$lib/coin.svg';
+	import foodIcon from '$lib/food.svg';
 	import headerLeft from '$lib/header_left.svg';
 	import headerMiddle from '$lib/header_middle.svg';
 	import headerRight from '$lib/header_right.svg';
 	import { gameState } from '../stores/game';
+	const { gold, food } = gameState;
+
 </script>
 
 <div class="relative">
@@ -19,22 +21,22 @@
 	</div>
 	<div class="flex flex-row gap-[20px] header-info">
 		<div class="item">
-			<img width="32" height="32" src={coin} alt="Ouro" />
-			{gameState.gold.getTotal()} Ouro
-			{#if gameState.gold.getGrowth() !== 0}
-				<span class="growth" class:negative={gameState.gold.getGrowth() < 0}>
-					{gameState.gold.getGrowth() > 0 ? '+' : ''}
-					{gameState.gold.getGrowth()} por dia
+			<img width="32" height="32" src={coinIcon} alt="Ouro" />
+			{$gold.total} Ouro
+			{#if $gold.growth !== 0}
+				<span class="growth" class:negative={$gold.growth < 0}>
+					{$gold.growth > 0 ? '+' : ''}
+					{$gold.growth} por dia
 				</span>
 			{/if}
 		</div>
 		<div class="item">
-			<img width="32" height="32" src={food} alt="Comida" />
-			{gameState.food.getTotal()} Comida
-			{#if gameState.food.getGrowth() !== 0}
-				<span class="growth" class:negative={gameState.food.getGrowth() < 0}>
-					{gameState.food.getGrowth() > 0 ? '+' : ''}
-					{gameState.food.getGrowth()} por dia
+			<img width="32" height="32" src={foodIcon} alt="Comida" />
+			{$food.total} Comida
+			{#if $food.growth !== 0}
+				<span class="growth" class:negative={$food.growth < 0}>
+					{$food.growth > 0 ? '+' : ''}
+					{$food.growth} por dia
 				</span>
 			{/if}
 		</div>

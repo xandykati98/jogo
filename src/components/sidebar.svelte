@@ -3,13 +3,15 @@
 	import helmet from '$lib/helmet.svg';
 	import book from '$lib/book.svg';
 	import { gameState } from '../stores/game';
+	const { isMagicTreeOpen } = gameState.interface;
+
 </script>
 
 <div class="sidebar absolute">
 	<button class="item">
 		<img src={food} alt="Magias" />
-	</button>FIX THISSSSSSS
-	<button class="item" on:click={() => gameState.interface.isMagicTreeOpen.toggle(true)}>
+	</button>
+	<button class="item" on:click={() => $isMagicTreeOpen = true}>
 		<img src={book} alt="Magias" />
 	</button>
 	<button class="item">
