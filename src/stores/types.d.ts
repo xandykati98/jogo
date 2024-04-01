@@ -7,6 +7,22 @@ interface Log {
 	day: number;
 	time: Date;
 }
+
+interface Weapon {}
+
+interface Hero {
+	maxHealth: number;
+	currentHealth: number;
+	baseAttack: number;
+	maxMana: number;
+	currentMana: number;
+	physicalDefense: number;
+	magicalDefense: number;
+	inventory: {
+		weapon: Weapon;
+	};
+}
+
 export type MagicTreeSpell = {
 	id: number;
 	tier: number;
