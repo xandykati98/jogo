@@ -1,27 +1,35 @@
-import { type createResource, createSpells, createBoolean, createDay, createLogs } from './game';
+import {
+	type createResource,
+	createSpells,
+	createBoolean,
+	createDay,
+	createLogs,
+	createInventory
+} from './game';
 
 interface Log {
 	id: number;
 	message: string;
-	type: 'info' | 'warning' | 'end' | 'magic';
+	type: 'info' | 'warning' | 'end' | 'magic' | 'sell';
 	day: number;
 	time: Date;
 }
-
-interface Weapon {}
-
-interface Hero {
-	maxHealth: number;
-	currentHealth: number;
-	baseAttack: number;
-	maxMana: number;
-	currentMana: number;
-	physicalDefense: number;
-	magicalDefense: number;
-	inventory: {
-		weapon: Weapon;
-	};
+type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
+type ItemTypes = 'weapon' | 'armor' | 'consumable' | 'spell';
+interface Item {
+	type: ItemTypes;
+	id: number;
+	cost: number;
+	name: string;
+	description: string;
+	icon: string;
+	rarity: Rarity;
 }
+
+interface Consumable extends Item {
+	effect: () => void;
+}
+type InventoryItem = Item | Consumable;
 
 export type MagicTreeSpell = {
 	id: number;
@@ -39,6 +47,11 @@ export type MagicTree = {
 	spells: ReturnType<typeof createSpells>;
 };
 
+export type Inventory = {
+	size: number;
+	items: InventoryItem[];
+};
+
 export type GameStateType = {
 	endDay: () => void;
 	day: ReturnType<typeof createDay>;
@@ -48,8 +61,11 @@ export type GameStateType = {
 	 * @description Velocidade de recuperação dos heróis
 	 */
 	rally: ReturnType<typeof createResource>;
+	inventory: ReturnType<typeof createInventory>;
 	logs: ReturnType<typeof createLogs>;
-	interface: {
+	sideInterface: {
 		isMagicTreeOpen: ReturnType<typeof createBoolean>;
+		isInventoryOpen: ReturnType<typeof createBoolean>;
+		closeAll: () => void;
 	};
 };

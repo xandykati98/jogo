@@ -1,6 +1,15 @@
 import { writable, get } from 'svelte/store';
-import type { GameStateType, Log, MagicTree, MagicTreeSpell } from './types';
-import { createLogId } from '$lib';
+import type {
+	Consumable,
+	GameStateType,
+	Inventory,
+	InventoryItem,
+	Item,
+	Log,
+	MagicTree,
+	MagicTreeSpell
+} from './types';
+import { createId, richText } from '$lib';
 
 export const createResource = (total: number = 0, growth: number = 0) => {
 	const { subscribe, set, update } = writable({
@@ -119,15 +128,67 @@ export const createDay = () => {
 
 export const createLogs = () => {
 	const { subscribe, set, update } = writable<Log[]>([]); // Specify the type of the initial value as an empty array of type Log[]
+	interface LogCreate extends Omit<Log, 'day' | 'time'> {}
 	return {
 		subscribe,
 		set,
 		update,
-		add: (log: Log) => {
-			update((n): Log[] => [...n, log]);
+		add: (log: LogCreate | Log) => {
+			if (!('day' in log) || !('time' in log)) {
+				update((n): Log[] => [
+					...n,
+					{
+						...log,
+						day: get(gameState.day),
+						time: new Date()
+					} as Log
+				]);
+			} else {
+				update((n) => [...n, log]);
+			}
 		},
 		remove: (id: number) => {
 			update((n) => n.filter((log) => log.id !== id));
+		}
+	};
+};
+
+export const createInventory = () => {
+	const { subscribe, set, update } = writable<Inventory>({
+		size: 25,
+		items: []
+	});
+	interface InventoryItemCreate extends Omit<InventoryItem, 'id'> {}
+	return {
+		subscribe,
+		set,
+		update,
+		add: (item: InventoryItem | InventoryItemCreate) => {
+			update((n) => {
+				if (n.items.length < n.size) {
+					if (!('id' in item)) {
+						n.items.push({
+							...item,
+							id: createId()
+						});
+					} else {
+						n.items.push(item);
+					}
+				} else {
+					gameState.logs.add({
+						id: createId(),
+						message: 'Seu inventário está cheio!',
+						type: 'warning'
+					});
+				}
+				return n;
+			});
+		},
+		remove: (id: number) => {
+			update((n) => {
+				n.items = n.items.filter((item) => item.id !== id);
+				return n;
+			});
 		}
 	};
 };
@@ -137,8 +198,18 @@ export const gameState: GameStateType = {
 	gold: createResource(100),
 	food: createResource(100),
 	rally: createResource(1),
-	interface: {
-		isMagicTreeOpen: createBoolean(false)
+	inventory: createInventory(),
+	sideInterface: {
+		isMagicTreeOpen: createBoolean(false),
+		isInventoryOpen: createBoolean(false),
+		closeAll: () => {
+			for (const key in gameState.sideInterface) {
+				const item = gameState.sideInterface[key as keyof GameStateType['sideInterface']];
+				if (key !== 'closeAll' && item) {
+					(item as ReturnType<typeof createBoolean>).set(false);
+				}
+			}
+		}
 	},
 	endDay() {
 		gameState.day.increment();
@@ -169,11 +240,9 @@ export const gameState: GameStateType = {
 				magicTree.selected = null;
 				// add spell completion to logs
 				gameState.logs.add({
-					id: createLogId(),
+					id: createId(),
 					message: `Magia ${selectedSpell.name} concluída.`,
-					type: 'magic',
-					day: get(gameState.day),
-					time: new Date()
+					type: 'magic'
 				});
 			}
 		}
@@ -182,21 +251,17 @@ export const gameState: GameStateType = {
 		 */
 		if (gameState.gold.getTotal() < 0) {
 			gameState.logs.add({
-				id: createLogId(),
+				id: createId(),
 				message: `Você faliu!`,
-				type: 'end',
-				day: get(gameState.day),
-				time: new Date()
+				type: 'end'
 			});
 			// TODO: fazer isso ficar bonito
 			alert('Game over: Você faliu!');
 		}
 		gameState.logs.add({
-			id: createLogId(),
+			id: createId(),
 			message: `Dia ${get(gameState.day)} iniciado.`,
-			type: 'info',
-			day: get(gameState.day),
-			time: new Date()
+			type: 'info'
 		});
 
 		console.log({ gameState, magicTree });
@@ -214,4 +279,28 @@ gameState.logs.add({
 	day: 1,
 	// 2000-01-01 00:00:00
 	time: new Date(946684800000)
+});
+
+gameState.inventory.add({
+	type: 'consumable',
+	name: 'Enlatados',
+	description: richText('Comida enlatada, use para ganhar mais **20 de comida**.'),
+	icon: 'food_can',
+	cost: 10,
+	rarity: 'common',
+	effect: () => {
+		gameState.food.incrementTotal(20);
+	}
+});
+
+gameState.inventory.add({
+	type: 'spell',
+	name: 'Magia: Caçada I',
+	description: richText('Encontra **duas** quests de caçada.'),
+	icon: 'hunt_spell',
+	cost: 45,
+	rarity: 'rare',
+	effect: () => {
+		// TODO
+	}
 });

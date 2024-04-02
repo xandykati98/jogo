@@ -7,7 +7,7 @@
 
 <ul class="logs">
 	{#each sortedLogs as log, i}
-		<li class={`log ${[log.type]}`}>{log.message}</li>
+		<li class={`log ${[log.type]}`}>{@html log.message}</li>
 	{/each}
 </ul>
 
@@ -32,6 +32,9 @@
 
 			&.magic {
 				background-color: aquamarine;
+			}
+			&.sell {
+				background-color: rgb(209, 255, 103);
 			}
 		}
 	}

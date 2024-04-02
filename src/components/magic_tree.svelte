@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { calcProgress } from '$lib';
 	import { gameState, magicTree } from '../stores/game';
-	const { isMagicTreeOpen } = gameState.interface;
+	const { isMagicTreeOpen } = gameState.sideInterface;
 	const { spells } = magicTree;
 	// sort for the lowest tiers first
 	$: sortedSpells = $spells
