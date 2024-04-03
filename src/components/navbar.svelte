@@ -6,7 +6,6 @@
 	import headerRight from '$lib/header_right.svg';
 	import { gameState } from '../stores/game';
 	const { gold, food } = gameState;
-
 </script>
 
 <div class="relative">
@@ -65,8 +64,7 @@
 		transform: translateX(-50%);
 		z-index: 1;
 		& .left,
-		& .right,
-		& .middle {
+		& .right {
 			img {
 				height: 96px;
 			}
@@ -81,10 +79,6 @@
 			transform: translateX(-50%);
 			width: calc(100% - 64px - 64px);
 			height: 100%;
-			& > img {
-				width: 100%;
-				max-height: 96px;
-			}
 		}
 		& .right {
 			top: 0;

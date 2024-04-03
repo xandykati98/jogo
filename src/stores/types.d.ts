@@ -29,7 +29,7 @@ interface Item {
 interface Consumable extends Item {
 	effect: () => void;
 }
-type InventoryItem = Item | Consumable;
+type GeneralItem = Item | Consumable;
 
 export type MagicTreeSpell = {
 	id: number;
@@ -49,7 +49,12 @@ export type MagicTree = {
 
 export type Inventory = {
 	size: number;
-	items: InventoryItem[];
+	items: GeneralItem[];
+};
+
+export type Shop = {
+	tax: number;
+	items: ReturnType<typeof createInventory>;
 };
 
 export type GameStateType = {
@@ -66,6 +71,7 @@ export type GameStateType = {
 	sideInterface: {
 		isMagicTreeOpen: ReturnType<typeof createBoolean>;
 		isInventoryOpen: ReturnType<typeof createBoolean>;
+		isShopOpen: ReturnType<typeof createBoolean>;
 		closeAll: () => void;
 	};
 };

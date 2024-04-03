@@ -41,7 +41,7 @@
 		display: none;
 		position: absolute;
 		top: 0;
-		left: 52px;
+		left: 68px;
 		z-index: +4;
 		width: 400px;
 		height: 400px;

@@ -1,17 +1,30 @@
 <script lang="ts">
 	import food from '$lib/food.svg';
+	import chest from '$lib/chest.svg';
+	import shop from '$lib/shop.svg';
 	import crate from '$lib/crate.svg';
 	import helmet from '$lib/helmet.svg';
 	import book from '$lib/book.svg';
 	import MagicTree from '../components/magic_tree.svelte';
 	import { gameState } from '../stores/game';
 	import Inventory from './inventory.svelte';
-	const { isMagicTreeOpen, isInventoryOpen, closeAll } = gameState.sideInterface;
+	import Shop from './shop.svelte';
+	const { isMagicTreeOpen, isInventoryOpen, isShopOpen, closeAll } = gameState.sideInterface;
 </script>
 
 <div class="sidebar absolute">
 	<MagicTree />
 	<Inventory />
+	<Shop />
+	<button
+		class="item"
+		on:click={() => {
+			closeAll();
+			isShopOpen.toggle();
+		}}
+	>
+		<img src={shop} alt="Loja" />
+	</button>
 	<button
 		class="item"
 		on:click={() => {
@@ -19,7 +32,7 @@
 			isInventoryOpen.toggle();
 		}}
 	>
-		<img src={crate} alt="Inventário" />
+		<img src={chest} alt="Inventário" />
 	</button>
 	<button
 		class="item"

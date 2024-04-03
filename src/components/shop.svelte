@@ -1,11 +1,12 @@
 <script lang="ts">
 	import coin from '$lib/coin.svg';
 	import { gameState, shop } from '../stores/game';
-	import type { Consumable, GeneralItem } from '../stores/types';
+	import type { GeneralItem } from '../stores/types';
 	import { createId, raritiesMap, richText } from '$lib';
-	import { get } from 'svelte/store';
-	const { isInventoryOpen } = gameState.sideInterface;
-	const { inventory } = gameState;
+	const { gold, logs, inventory } = gameState;
+	const { isShopOpen } = gameState.sideInterface;
+	const { items: shopItems, tax } = shop;
+
 	let selectedItem: GeneralItem | null = null;
 	const selectItem = (item: GeneralItem) => {
 		if (selectedItem?.id === item.id) {
@@ -14,48 +15,45 @@
 			selectedItem = item;
 		}
 	};
-	const sell = () => {
+
+	const buy = () => {
 		if (selectedItem) {
-			inventory.remove(selectedItem.id);
-			gameState.gold.incrementTotal(selectedItem.cost);
-			gameState.logs.add({
-				type: 'sell',
-				message: richText(`Vendeu ${selectedItem.name} por **${selectedItem.cost} de ouro**.`),
-				id: createId()
-			});
-			shop.items.add(selectedItem);
-			selectedItem = null;
-		}
-	};
-	const use = () => {
-		if (selectedItem) {
-			inventory.remove(selectedItem.id);
-			if ((selectedItem as Consumable).effect) {
-				(selectedItem as Consumable).effect();
+			// if the player has enough gold
+			const cost = Math.trunc(selectedItem.cost * tax);
+			if ($gold.total >= cost) {
+				// remove the item from the shop
+				shop.items.remove(selectedItem.id);
+				gold.incrementTotal(-cost);
+				inventory.add(selectedItem);
+				logs.add({
+					type: 'sell',
+					message: richText(`Comprou ${selectedItem.name} por **${cost} de ouro**.`),
+					id: createId()
+				});
+				selectedItem = null;
+			} else {
+				logs.add({
+					type: 'warning',
+					message: `Você não tem ouro suficiente para comprar ${selectedItem.name}.`,
+					id: createId()
+				});
 			}
-			gameState.logs.add({
-				type: selectedItem.type === 'spell' ? 'magic' : 'info',
-				message: `Usou ${selectedItem.name}.`,
-				id: createId()
-			});
-			selectedItem = null;
 		}
 	};
 </script>
 
-<div class="inventory" class:wide={selectedItem !== null} class:open={$isInventoryOpen}>
+<div class="shop" class:wide={selectedItem !== null} class:open={$isShopOpen}>
 	<div class="title">
-		<h2>Inventário</h2>
+		<h2>Loja</h2>
 		<button
 			on:click={() => {
-				$isInventoryOpen = false;
-				selectedItem = null;
+				isShopOpen.set(false);
 			}}>X</button
 		>
 	</div>
 	<div class="wrapper">
 		<div class="content">
-			{#each $inventory.items as item}
+			{#each $shopItems.items as item}
 				<button
 					on:click={() => selectItem(item)}
 					class:selected={selectedItem?.id === item.id}
@@ -65,9 +63,6 @@
 						<img {src} alt={item.name} width="64" height="64" />
 					{/await}
 				</button>
-			{/each}
-			{#each { length: $inventory.size - $inventory.items.length } as item}
-				<div class="item"></div>
 			{/each}
 		</div>
 		{#if selectedItem}
@@ -85,11 +80,10 @@
 					</div>
 				</div>
 				<div class="actions">
-					{#if 'effect' in selectedItem}
-						<button on:click={() => use()}>Usar</button>
-					{/if}
-					<button on:click={() => sell()}
-						>Vender {selectedItem.cost}<img src={coin} alt="Moeda" /></button
+					<button
+						class:disabled={$gold.total < Math.trunc(selectedItem.cost * tax)}
+						on:click={() => buy()}
+						>Comprar {Math.trunc(selectedItem.cost * tax)}<img src={coin} alt="Moeda" /></button
 					>
 				</div>
 			</div>
@@ -98,7 +92,7 @@
 </div>
 
 <style lang="scss">
-	.inventory {
+	.shop {
 		display: none;
 		position: absolute;
 		top: 0;
@@ -180,6 +174,9 @@
 						gap: 5px;
 						&:hover {
 							background: #00000013;
+						}
+						&.disabled {
+							cursor: disabled;
 						}
 					}
 				}

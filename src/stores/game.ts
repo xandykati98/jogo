@@ -3,13 +3,15 @@ import type {
 	Consumable,
 	GameStateType,
 	Inventory,
-	InventoryItem,
+	GeneralItem,
 	Item,
 	Log,
 	MagicTree,
-	MagicTreeSpell
+	MagicTreeSpell,
+	Shop
 } from './types';
 import { createId, richText } from '$lib';
+import { Enlatados, MagiaCaçadaI } from '$lib/items';
 
 export const createResource = (total: number = 0, growth: number = 0) => {
 	const { subscribe, set, update } = writable({
@@ -126,9 +128,9 @@ export const createDay = () => {
 	};
 };
 
+export interface LogCreate extends Omit<Log, 'day' | 'time'> {}
 export const createLogs = () => {
 	const { subscribe, set, update } = writable<Log[]>([]); // Specify the type of the initial value as an empty array of type Log[]
-	interface LogCreate extends Omit<Log, 'day' | 'time'> {}
 	return {
 		subscribe,
 		set,
@@ -153,17 +155,20 @@ export const createLogs = () => {
 	};
 };
 
-export const createInventory = () => {
+export interface GeneralItemCreate extends Omit<GeneralItem, 'id'> {}
+type CreateInventoryOptions = {
+	size?: number;
+};
+export const createInventory = (options?: CreateInventoryOptions) => {
 	const { subscribe, set, update } = writable<Inventory>({
-		size: 25,
+		size: options?.size || 25,
 		items: []
 	});
-	interface InventoryItemCreate extends Omit<InventoryItem, 'id'> {}
 	return {
 		subscribe,
 		set,
 		update,
-		add: (item: InventoryItem | InventoryItemCreate) => {
+		add: (item: GeneralItem | GeneralItemCreate) => {
 			update((n) => {
 				if (n.items.length < n.size) {
 					if (!('id' in item)) {
@@ -193,6 +198,10 @@ export const createInventory = () => {
 	};
 };
 
+export const shop: Shop = {
+	tax: 1.1,
+	items: createInventory({ size: Infinity })
+};
 export const gameState: GameStateType = {
 	day: createDay(),
 	gold: createResource(100),
@@ -202,6 +211,7 @@ export const gameState: GameStateType = {
 	sideInterface: {
 		isMagicTreeOpen: createBoolean(false),
 		isInventoryOpen: createBoolean(false),
+		isShopOpen: createBoolean(false),
 		closeAll: () => {
 			for (const key in gameState.sideInterface) {
 				const item = gameState.sideInterface[key as keyof GameStateType['sideInterface']];
@@ -281,26 +291,8 @@ gameState.logs.add({
 	time: new Date(946684800000)
 });
 
-gameState.inventory.add({
-	type: 'consumable',
-	name: 'Enlatados',
-	description: richText('Comida enlatada, use para ganhar mais **20 de comida**.'),
-	icon: 'food_can',
-	cost: 10,
-	rarity: 'common',
-	effect: () => {
-		gameState.food.incrementTotal(20);
-	}
-});
+gameState.inventory.add(Enlatados);
 
-gameState.inventory.add({
-	type: 'spell',
-	name: 'Magia: Caçada I',
-	description: richText('Encontra **duas** quests de caçada.'),
-	icon: 'hunt_spell',
-	cost: 45,
-	rarity: 'rare',
-	effect: () => {
-		// TODO
-	}
-});
+gameState.inventory.add(MagiaCaçadaI);
+
+shop.items.add(Enlatados);
