@@ -42,7 +42,7 @@ export type MagicTreeSpell = {
 	effect: () => void;
 };
 export type MagicTree = {
-	speed: number;
+	speed: ReturnType<typeof createResource>;
 	selected: null | number;
 	spells: ReturnType<typeof createSpells>;
 };
@@ -53,7 +53,7 @@ export type Inventory = {
 };
 
 export type Shop = {
-	tax: number;
+	tax: ReturnType<typeof createResource>;
 	items: ReturnType<typeof createInventory>;
 };
 

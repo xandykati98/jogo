@@ -5,7 +5,9 @@
 	import { createId, raritiesMap, richText } from '$lib';
 	const { gold, logs, inventory } = gameState;
 	const { isShopOpen } = gameState.sideInterface;
-	const { items: shopItems, tax } = shop;
+	const { items: shopItems, tax: taxStore } = shop;
+	$: tax = $taxStore.total;
+	$: taxPercent = tax * 100;
 
 	let selectedItem: GeneralItem | null = null;
 	const selectItem = (item: GeneralItem) => {
@@ -27,15 +29,13 @@
 				inventory.add(selectedItem);
 				logs.add({
 					type: 'sell',
-					message: richText(`Comprou ${selectedItem.name} por **${cost} de ouro**.`),
-					id: createId()
+					message: richText(`Comprou ${selectedItem.name} por **${cost} de ouro**.`)
 				});
 				selectedItem = null;
 			} else {
 				logs.add({
 					type: 'warning',
-					message: `Você não tem ouro suficiente para comprar ${selectedItem.name}.`,
-					id: createId()
+					message: `Você não tem ouro suficiente para comprar ${selectedItem.name}.`
 				});
 			}
 		}
@@ -44,7 +44,7 @@
 
 <div class="shop" class:wide={selectedItem !== null} class:open={$isShopOpen}>
 	<div class="title">
-		<h2>Loja</h2>
+		<h2>Loja - Taxa: {taxPercent}%</h2>
 		<button
 			on:click={() => {
 				isShopOpen.set(false);

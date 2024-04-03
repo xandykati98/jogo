@@ -20,8 +20,7 @@
 			gameState.gold.incrementTotal(selectedItem.cost);
 			gameState.logs.add({
 				type: 'sell',
-				message: richText(`Vendeu ${selectedItem.name} por **${selectedItem.cost} de ouro**.`),
-				id: createId()
+				message: richText(`Vendeu ${selectedItem.name} por **${selectedItem.cost} de ouro**.`)
 			});
 			shop.items.add(selectedItem);
 			selectedItem = null;
@@ -35,8 +34,7 @@
 			}
 			gameState.logs.add({
 				type: selectedItem.type === 'spell' ? 'magic' : 'info',
-				message: `Usou ${selectedItem.name}.`,
-				id: createId()
+				message: `Usou ${selectedItem.name}.`
 			});
 			selectedItem = null;
 		}

@@ -12,6 +12,7 @@ import type {
 } from './types';
 import { createId, richText } from '$lib';
 import { Enlatados, MagiaCaçadaI } from '$lib/items';
+import { PersuasãoComida, PersuasãoOuro, RenovaçãoVeloz } from '$lib/spells';
 
 export const createResource = (total: number = 0, growth: number = 0) => {
 	const { subscribe, set, update } = writable({
@@ -85,35 +86,9 @@ export const createSpells = (spells: MagicTreeSpell[]) => {
 };
 
 export const magicTree: MagicTree = {
-	speed: 1,
+	speed: createResource(1),
 	selected: null,
-	spells: createSpells([
-		{
-			id: 1,
-			tier: 1,
-			name: 'Renovação Veloz',
-			description:
-				'Após derrotas em batalha, esta magia acelera a recuperação dos heróis em 10%, permitindo que retornem à luta com mais rapidez.',
-			icon: 'helmet',
-			cost: 4,
-			progress: 0,
-			effect: () => {
-				gameState.rally.incrementTotal(0.1);
-			}
-		},
-		{
-			id: 2,
-			tier: 1,
-			name: 'Persuasão - Comida',
-			description: 'Comprar comida na loja de suprimentos agora custa 10% menos.',
-			icon: 'no_coin',
-			cost: 4,
-			progress: 0,
-			effect: () => {
-				// TODO
-			}
-		}
-	])
+	spells: createSpells([RenovaçãoVeloz, PersuasãoComida, PersuasãoOuro])
 };
 
 export const createDay = () => {
@@ -128,7 +103,7 @@ export const createDay = () => {
 	};
 };
 
-export interface LogCreate extends Omit<Log, 'day' | 'time'> {}
+export interface LogCreate extends Omit<Log, 'day' | 'time' | 'id'> {}
 export const createLogs = () => {
 	const { subscribe, set, update } = writable<Log[]>([]); // Specify the type of the initial value as an empty array of type Log[]
 	return {
@@ -136,17 +111,21 @@ export const createLogs = () => {
 		set,
 		update,
 		add: (log: LogCreate | Log) => {
-			if (!('day' in log) || !('time' in log)) {
+			let createdLog = log;
+			if (!('id' in createdLog)) {
+				createdLog = { ...createdLog, id: createId() };
+			}
+			if (!('day' in createdLog) || !('time' in createdLog)) {
 				update((n): Log[] => [
 					...n,
 					{
-						...log,
+						...createdLog,
 						day: get(gameState.day),
 						time: new Date()
 					} as Log
 				]);
 			} else {
-				update((n) => [...n, log]);
+				update((n) => [...n, createdLog as Log]);
 			}
 		},
 		remove: (id: number) => {
@@ -181,7 +160,6 @@ export const createInventory = (options?: CreateInventoryOptions) => {
 					}
 				} else {
 					gameState.logs.add({
-						id: createId(),
 						message: 'Seu inventário está cheio!',
 						type: 'warning'
 					});
@@ -199,7 +177,7 @@ export const createInventory = (options?: CreateInventoryOptions) => {
 };
 
 export const shop: Shop = {
-	tax: 1.1,
+	tax: createResource(2),
 	items: createInventory({ size: Infinity })
 };
 export const gameState: GameStateType = {
@@ -244,13 +222,15 @@ export const gameState: GameStateType = {
 		 */
 		const selectedSpell = get(magicTree.spells).find((spell) => spell.id === magicTree.selected);
 		if (selectedSpell) {
-			magicTree.spells.updateProgress(selectedSpell.id, selectedSpell.progress + magicTree.speed);
+			magicTree.spells.updateProgress(
+				selectedSpell.id,
+				selectedSpell.progress + get(magicTree.speed).total
+			);
 			if (selectedSpell.progress >= selectedSpell.cost) {
 				selectedSpell.effect();
 				magicTree.selected = null;
 				// add spell completion to logs
 				gameState.logs.add({
-					id: createId(),
 					message: `Magia ${selectedSpell.name} concluída.`,
 					type: 'magic'
 				});
@@ -261,7 +241,6 @@ export const gameState: GameStateType = {
 		 */
 		if (gameState.gold.getTotal() < 0) {
 			gameState.logs.add({
-				id: createId(),
 				message: `Você faliu!`,
 				type: 'end'
 			});
@@ -269,7 +248,6 @@ export const gameState: GameStateType = {
 			alert('Game over: Você faliu!');
 		}
 		gameState.logs.add({
-			id: createId(),
 			message: `Dia ${get(gameState.day)} iniciado.`,
 			type: 'info'
 		});
