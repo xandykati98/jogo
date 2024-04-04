@@ -79,10 +79,15 @@ export type HeroSkill = {
 	effect: () => void;
 };
 
+export type HeroType = 'mage' | 'warrior' | 'thief'
+export type Race = 'human' | 'goblin'
+
 export interface Hero {
 	id: number;
 	name: string;
 	description: string;
+	type: HeroType;
+	race: Race;
 	icon: string;
 	image: string;
 	level: Writable<number>;

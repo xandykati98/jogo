@@ -106,7 +106,7 @@ export const createDay = () => {
 	};
 };
 
-export interface LogCreate extends Omit<Log, 'day' | 'time' | 'id'> {}
+export interface LogCreate extends Omit<Log, 'day' | 'time' | 'id'> { }
 export const createLogs = () => {
 	const { subscribe, set, update } = writable<Log[]>([]); // Specify the type of the initial value as an empty array of type Log[]
 	return {
@@ -137,7 +137,7 @@ export const createLogs = () => {
 	};
 };
 
-export interface GeneralItemCreate extends Omit<GeneralItem, 'id'> {}
+export interface GeneralItemCreate extends Omit<GeneralItem, 'id'> { }
 type CreateInventoryOptions = {
 	size?: number;
 };
@@ -323,6 +323,8 @@ export const createHeroes = () => {
 		}
 	};
 };
+
+export const heroes = createHeroes();
 
 const onStart = () => {
 	gameState.inventory.add(Enlatados);
