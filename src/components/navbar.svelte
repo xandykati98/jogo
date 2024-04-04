@@ -77,7 +77,7 @@
 			top: 0;
 			left: 50%;
 			transform: translateX(-50%);
-			width: calc(100% - 64px - 64px);
+			width: calc(100% - 64px - 64px + 1px);
 			height: 100%;
 		}
 		& .right {
