@@ -26,6 +26,18 @@ interface Item {
 	icon: string;
 	rarity: Rarity;
 }
+export interface EquipableItem extends Item {
+	/**
+	 * @description Stats que o item dá ao ser equipado
+	 */
+	plusStats?: {
+		strength?: number;
+		intelligence?: number;
+		dexterity?: number;
+	};
+	equip: () => void;
+	unEquip: () => void;
+}
 
 interface Consumable extends Item {
 	effect: () => void;
@@ -57,6 +69,51 @@ export type Shop = {
 	tax: ReturnType<typeof createResource>;
 	items: ReturnType<typeof createInventory>;
 };
+
+export type HeroSkill = {
+	id: number;
+	name: string;
+	description: string;
+	icon: string;
+	tier: number;
+	effect: () => void;
+};
+
+export interface Hero {
+	id: number;
+	name: string;
+	description: string;
+	icon: string;
+	image: string;
+	level: Writable<number>;
+	experience: Writable<number>;
+	health: Writable<number>;
+	mana: Writable<number>;
+	stats: {
+		strength: Writable<number>;
+		intelligence: Writable<number>;
+		dexterity: Writable<number>;
+	};
+	skills: {
+		[type: string]: {
+			name: string;
+			description: string;
+			color: string;
+			icon: string;
+			tree: HeroSkill[];
+		};
+	};
+	slots: {
+		weapon: Writable<null | EquipableItem>;
+		chestplate: Writable<null | EquipableItem>;
+		legs: Writable<null | EquipableItem>;
+		boots: Writable<null | EquipableItem>;
+		gloves: Writable<null | EquipableItem>;
+		ring: Writable<null | EquipableItem>;
+		necklace: Writable<null | EquipableItem>;
+		head: Writable<null | EquipableItem>;
+	};
+}
 
 export interface Decision {
 	id: number;
@@ -94,6 +151,7 @@ export type GameStateType = {
 		isMagicTreeOpen: ReturnType<typeof createBoolean>;
 		isInventoryOpen: ReturnType<typeof createBoolean>;
 		isShopOpen: ReturnType<typeof createBoolean>;
+		isHeroesOpen: ReturnType<typeof createBoolean>;
 		closeAll: () => void;
 	};
 };

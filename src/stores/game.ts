@@ -9,7 +9,8 @@ import type {
 	MagicTree,
 	MagicTreeSpell,
 	Shop,
-	Decision
+	Decision,
+	Hero
 } from './types';
 import { createId, richText } from '$lib';
 import { Enlatados, MagiaCaçadaI } from '$lib/items';
@@ -192,6 +193,7 @@ export const gameState: GameStateType = {
 		isMagicTreeOpen: createBoolean(false),
 		isInventoryOpen: createBoolean(false),
 		isShopOpen: createBoolean(false),
+		isHeroesOpen: createBoolean(false),
 		closeAll: () => {
 			for (const key in gameState.sideInterface) {
 				const item = gameState.sideInterface[key as keyof GameStateType['sideInterface']];
@@ -306,6 +308,21 @@ const createDecisions = () => {
 };
 
 export const decisions = createDecisions();
+
+export const createHeroes = () => {
+	const { subscribe, set, update } = writable<Hero[]>([]);
+	return {
+		subscribe,
+		set,
+		update,
+		add: (hero: any) => {
+			update((n) => [...n, hero]);
+		},
+		remove: (id: number) => {
+			update((n) => n.filter((hero) => hero.id !== id));
+		}
+	};
+};
 
 const onStart = () => {
 	gameState.inventory.add(Enlatados);

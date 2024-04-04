@@ -59,6 +59,7 @@
 
 		card.style.transform = `translate(${x}px) rotate(${angle}deg)`;
 		card.style.opacity = `${1 - Math.abs(x) / window.innerWidth}`;
+		card.classList.remove('left-active', 'right-active');
 
 		if (x !== 0) requestAnimationFrame(reset);
 	};
@@ -169,7 +170,7 @@
 					<div class="text">Quer avançar para o próximo dia?</div>
 					<div class="actions">
 						<button class="left action" on:click={handleEndNo}> Não </button>
-						<button class="right action" on:click={handleEndNo}> Sim </button>
+						<button class="right action" on:click={handleEndYes}> Sim </button>
 					</div>
 				</div>
 			</button>

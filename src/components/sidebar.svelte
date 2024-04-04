@@ -9,7 +9,9 @@
 	import { gameState, magicTree } from '../stores/game';
 	import Inventory from './inventory.svelte';
 	import Shop from './shop.svelte';
-	const { isMagicTreeOpen, isInventoryOpen, isShopOpen, closeAll } = gameState.sideInterface;
+	import Heroes from './heroes.svelte';
+	const { isMagicTreeOpen, isInventoryOpen, isShopOpen, closeAll, isHeroesOpen } =
+		gameState.sideInterface;
 	const { selected: selectedMagicTree } = magicTree;
 </script>
 
@@ -17,6 +19,7 @@
 	<MagicTree />
 	<Inventory />
 	<Shop />
+	<Heroes />
 	<button
 		class="item"
 		on:click={() => {
@@ -45,7 +48,13 @@
 	>
 		<img src={book} alt="Magias" />
 	</button>
-	<button class="item">
+	<button
+		class="item"
+		on:click={() => {
+			closeAll();
+			isHeroesOpen.toggle();
+		}}
+	>
 		<img src={helmet} alt="Heróis" />
 	</button>
 </div>
