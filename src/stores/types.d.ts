@@ -6,6 +6,7 @@ import {
 	createLogs,
 	createInventory
 } from './game';
+import type { Writable } from 'svelte/store';
 
 interface Log {
 	id: number;
@@ -43,7 +44,7 @@ export type MagicTreeSpell = {
 };
 export type MagicTree = {
 	speed: ReturnType<typeof createResource>;
-	selected: null | number;
+	selected: Writable<null | number>;
 	spells: ReturnType<typeof createSpells>;
 };
 

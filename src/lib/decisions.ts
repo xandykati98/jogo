@@ -1,5 +1,5 @@
-import { richText } from '$lib';
-import { gameState } from '../stores/game';
+import { createId, richText } from '$lib';
+import { decisions, gameState } from '../stores/game';
 import type { Decision } from '../stores/types';
 
 export const timedDecisions: {
@@ -32,6 +32,44 @@ export const timedDecisions: {
 					}
 				}
 			}
+		},
+		{
+			id: 2,
+			text: richText(
+				'Você encontrou um livro mágico, ele pode te ajudar a melhorar sua taverna com magias.'
+			),
+			title: 'Livro mágico',
+			image: 'book',
+			right: {
+				text: 'Pegar',
+				effect: {
+					description: richText('Você pegou o livro mágico.'),
+					activate: () => {
+						gameState.logs.add({
+							message: richText(
+								'Para melhorar sua taverna com magias clique no ícone de livro mágico na barra de ações na esquerda.'
+							),
+							type: 'magic'
+						});
+					}
+				}
+			},
+			left: {
+				text: 'Ignorar',
+				effect: {
+					description: richText('Você ignorou o livro mágico.'),
+					activate: () => {
+						gameState.logs.add({
+							message: 'Você ignorou o livro mágico. Mas ele continua disponível na taverna.',
+							type: 'info'
+						});
+					}
+				}
+			}
 		}
 	]
+};
+
+export const createTimedDecision = (day: number, decision: Decision) => {
+	timedDecisions[day] = [...(timedDecisions[day] || []), decision];
 };

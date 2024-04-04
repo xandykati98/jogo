@@ -1,7 +1,7 @@
 <script lang="ts">
 	// make a tinder-like swipeable card component
 	import { onMount, createEventDispatcher } from 'svelte';
-	import { decisions } from '../stores/game';
+	import { decisions, gameState } from '../stores/game';
 
 	$: activeDecision = $decisions[0];
 
@@ -19,7 +19,11 @@
 	});
 
 	const handleMouseMove = (event: MouseEvent) => {
-		if (!isDragging || !card) return;
+		if (!card) return;
+		if (!isDragging) {
+			card.classList.remove('left-active', 'right-active');
+			return;
+		}
 		x = event.clientX - prevX;
 		angle = x / 5;
 		card.style.transform = `translate(${Math.trunc(x)}px) rotate(${angle}deg)`;
@@ -78,10 +82,18 @@
 		if (Math.abs(x) > threshold) {
 			if (x > 0) {
 				// right swipe
-				handleRightDecision();
+				if (activeDecision) {
+					handleRightDecision();
+				} else {
+					handleEndYes();
+				}
 			} else {
 				// left swipe
-				handleLeftDecision();
+				if (activeDecision) {
+					handleLeftDecision();
+				} else {
+					handleEndNo();
+				}
 			}
 		}
 		reset();
@@ -89,6 +101,15 @@
 	const handleMouseLeave = () => {
 		isDragging = false;
 		reset();
+	};
+	const handleEndNo = () => {
+		isDragging = false;
+		reset();
+	};
+	const handleEndYes = () => {
+		isDragging = false;
+		reset();
+		gameState.endDay();
 	};
 </script>
 
@@ -106,10 +127,10 @@
 			>
 				<div class="wrapper">
 					<div class="title">
-						{activeDecision.title}
+						{@html activeDecision.title}
 					</div>
 					<div class="text">
-						{activeDecision.text}
+						{@html activeDecision.text}
 					</div>
 					<div class="actions">
 						<button class="left action" on:click={handleLeftDecision}>
@@ -128,6 +149,27 @@
 								</div>
 							{/if}
 						</button>
+					</div>
+				</div>
+			</button>
+		{/await}
+	{:else}
+		{#await import(`$lib/cards/end.png`) then { default: src }}
+			<button
+				class="card"
+				bind:this={card}
+				on:mousemove={handleMouseMove}
+				on:mousedown={handleMouseDown}
+				on:mouseup={handleMouseUp}
+				on:mouseleave={handleMouseLeave}
+				style="background-image: url({src})"
+			>
+				<div class="wrapper">
+					<div class="title">Todas as decisões foram tomadas</div>
+					<div class="text">Quer avançar para o próximo dia?</div>
+					<div class="actions">
+						<button class="left action" on:click={handleEndNo}> Não </button>
+						<button class="right action" on:click={handleEndNo}> Sim </button>
 					</div>
 				</div>
 			</button>
@@ -153,6 +195,7 @@
 		width: 300px;
 		background: red;
 		background-size: cover;
+		background-position: center;
 		position: absolute;
 		animation: goUp 0.2s;
 		&.left-active {
@@ -223,6 +266,7 @@
 						color: #fff;
 						font-size: 12px;
 						z-index: 2;
+						pointer-events: none;
 					}
 					&::after {
 						position: absolute;

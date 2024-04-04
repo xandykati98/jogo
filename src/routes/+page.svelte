@@ -10,6 +10,6 @@
 	<Navbar />
 	<Sidebar />
 	<Logs />
-	<EndDayPrototype />
+	<!-- <EndDayPrototype /> -->
 	<Cards />
 </div>

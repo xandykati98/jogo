@@ -6,10 +6,11 @@
 	import helmet from '$lib/helmet.svg';
 	import book from '$lib/book.svg';
 	import MagicTree from '../components/magic_tree.svelte';
-	import { gameState } from '../stores/game';
+	import { gameState, magicTree } from '../stores/game';
 	import Inventory from './inventory.svelte';
 	import Shop from './shop.svelte';
 	const { isMagicTreeOpen, isInventoryOpen, isShopOpen, closeAll } = gameState.sideInterface;
+	const { selected: selectedMagicTree } = magicTree;
 </script>
 
 <div class="sidebar absolute z-[2]">
@@ -36,6 +37,7 @@
 	</button>
 	<button
 		class="item"
+		class:highlight={$selectedMagicTree === null}
 		on:click={() => {
 			closeAll();
 			isMagicTreeOpen.toggle();
@@ -65,6 +67,9 @@
 			align-items: center;
 			justify-content: center;
 			cursor: pointer;
+			&.highlight {
+				background-color: #5900ff98;
+			}
 			&:hover {
 				background-color: #00000013;
 			}

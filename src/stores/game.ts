@@ -89,7 +89,7 @@ export const createSpells = (spells: MagicTreeSpell[]) => {
 
 export const magicTree: MagicTree = {
 	speed: createResource(1),
-	selected: null,
+	selected: writable<null | number>(null),
 	spells: createSpells([RenovaçãoVeloz, PersuasãoComida, PersuasãoOuro])
 };
 
@@ -236,7 +236,9 @@ export const gameState: GameStateType = {
 		/**
 		 * @description Pesquisa as magias
 		 */
-		const selectedSpell = get(magicTree.spells).find((spell) => spell.id === magicTree.selected);
+		const selectedSpell = get(magicTree.spells).find(
+			(spell) => spell.id === get(magicTree.selected)
+		);
 		if (selectedSpell) {
 			magicTree.spells.updateProgress(
 				selectedSpell.id,
@@ -244,7 +246,7 @@ export const gameState: GameStateType = {
 			);
 			if (selectedSpell.progress >= selectedSpell.cost) {
 				selectedSpell.effect();
-				magicTree.selected = null;
+				magicTree.selected.set(null);
 				// add spell completion to logs
 				gameState.logs.add({
 					message: `Magia ${selectedSpell.name} concluída.`,
@@ -293,6 +295,9 @@ const createDecisions = () => {
 		update,
 		add: (decision: Decision) => {
 			update((n) => [...n, decision]);
+		},
+		addToFront: (decision: Decision) => {
+			update((n) => [decision, ...n]);
 		},
 		remove: (id: number) => {
 			update((n) => n.filter((decision) => decision.id !== id));

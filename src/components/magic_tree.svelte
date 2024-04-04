@@ -2,7 +2,7 @@
 	import { calcProgress } from '$lib';
 	import { gameState, magicTree } from '../stores/game';
 	const { isMagicTreeOpen } = gameState.sideInterface;
-	const { spells } = magicTree;
+	const { spells, selected } = magicTree;
 	// sort for the lowest tiers first
 	$: sortedSpells = $spells
 		.sort((a, b) => a.tier - b.tier)
@@ -17,8 +17,8 @@
 	{#each sortedSpells as spell}
 		<button
 			class="alternative"
-			on:click={() => (magicTree.selected = magicTree.selected === spell.id ? null : spell.id)}
-			class:selected={magicTree.selected === spell.id}
+			on:click={() => selected.set($selected === spell.id ? null : spell.id)}
+			class:selected={$selected === spell.id}
 		>
 			<div class="icon">
 				{#await import(`$lib/${spell.icon}.svg`) then { default: src }}
