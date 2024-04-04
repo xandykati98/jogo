@@ -1,6 +1,12 @@
 <script lang="ts">
 	// make a tinder-like swipeable card component
-	import { onMount } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
+	import { decisions } from '../stores/game';
+
+	$: activeDecision = $decisions[0];
+
+	const dispatch = createEventDispatcher();
+
 	let isDragging = false;
 	let x = 0;
 	let prevX = 0;
@@ -13,7 +19,7 @@
 	});
 
 	const handleMouseMove = (event: MouseEvent) => {
-		if (!isDragging) return;
+		if (!isDragging || !card) return;
 		x = event.clientX - prevX;
 		angle = x / 5;
 		card.style.transform = `translate(${Math.trunc(x)}px) rotate(${angle}deg)`;
@@ -23,9 +29,9 @@
 
 		// if the card passes the threshold, change the color
 		if (Math.abs(x) > threshold) {
-			card.style.backgroundColor = x > 0 ? 'green' : 'yellow';
+			card.classList.add(x < 0 ? 'left-active' : 'right-active');
 		} else {
-			card.style.backgroundColor = 'red';
+			card.classList.remove('left-active', 'right-active');
 		}
 	};
 
@@ -35,10 +41,12 @@
 	};
 
 	const reset = () => {
+		if (!card) return;
 		const rate = 5;
 		if (Math.abs(x) < rate) {
 			isDragging = false;
 			prevX = 0;
+			x = 0;
 			return;
 		}
 		x += (0 - x) / rate;
@@ -52,10 +60,18 @@
 	};
 
 	const handleRightDecision = () => {
-		console.log('right');
+		dispatch('decision', 'right');
+		activeDecision.right.effect();
+		decisions.remove(activeDecision.id);
+		prevX = 0;
+		x = 0;
 	};
 	const handleLeftDecision = () => {
-		console.log('left');
+		dispatch('decision', 'left');
+		activeDecision.left.effect();
+		decisions.remove(activeDecision.id);
+		prevX = 0;
+		x = 0;
 	};
 	const handleMouseUp = () => {
 		isDragging = false;
@@ -77,14 +93,36 @@
 </script>
 
 <div class="card-container">
-	<button
-		class="card"
-		bind:this={card}
-		on:mousemove={handleMouseMove}
-		on:mousedown={handleMouseDown}
-		on:mouseup={handleMouseUp}
-		on:mouseleave={handleMouseLeave}
-	></button>
+	{#if activeDecision}
+		{#await import(`$lib/cards/${activeDecision.image}.png`) then { default: src }}
+			<button
+				class="card"
+				bind:this={card}
+				on:mousemove={handleMouseMove}
+				on:mousedown={handleMouseDown}
+				on:mouseup={handleMouseUp}
+				on:mouseleave={handleMouseLeave}
+				style="background-image: url({src})"
+			>
+				<div class="wrapper">
+					<div class="title">
+						{activeDecision.title}
+					</div>
+					<div class="text">
+						{activeDecision.text}
+					</div>
+					<div class="actions">
+						<button class="left" on:click={handleLeftDecision}>
+							{activeDecision.left.text}
+						</button>
+						<button class="right" on:click={handleRightDecision}>
+							{activeDecision.right.text}
+						</button>
+					</div>
+				</div>
+			</button>
+		{/await}
+	{/if}
 </div>
 
 <style lang="scss">
@@ -99,6 +137,78 @@
 		height: 50vh;
 		width: 300px;
 		background: red;
+		background-size: cover;
 		position: absolute;
+		animation: goUp 0.2s;
+		&.left-active {
+			& .wrapper .actions .left {
+				color: yellowgreen;
+			}
+		}
+		&.right-active {
+			& .wrapper .actions .right {
+				color: yellowgreen;
+			}
+		}
+		@keyframes goUp {
+			0% {
+				transform: translateY(100%);
+			}
+			100% {
+				transform: translateY(0);
+			}
+		}
+
+		& .wrapper {
+			// linear gradient
+			background: linear-gradient(0deg, rgba(0, 0, 0, 1), transparent);
+			height: 100%;
+			width: 100%;
+			color: #fff;
+			display: flex;
+			flex-direction: column;
+			justify-content: space-between;
+
+			& .title {
+				font-size: 24px;
+				padding: 10px;
+				width: 100%;
+			}
+			& .text {
+				padding: 10px;
+			}
+			& .actions {
+				display: flex;
+				justify-content: space-between;
+				flex-direction: column;
+				gap: 5px;
+				padding: 10px;
+				& button {
+					padding: 5px 25px;
+					position: relative;
+					background: #00000066;
+					border: 1px solid #000;
+					color: #fff;
+					border: none;
+					cursor: pointer;
+					&:hover {
+						background: #00000099;
+					}
+					&::after {
+						position: absolute;
+						top: 50%;
+						transform: translateY(-50%);
+					}
+					&.left::after {
+						content: '<-';
+						left: 5px;
+					}
+					&.right::after {
+						content: '->';
+						right: 5px;
+					}
+				}
+			}
+		}
 	}
 </style>

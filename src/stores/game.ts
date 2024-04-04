@@ -8,11 +8,13 @@ import type {
 	Log,
 	MagicTree,
 	MagicTreeSpell,
-	Shop
+	Shop,
+	Decision
 } from './types';
 import { createId, richText } from '$lib';
 import { Enlatados, MagiaCaçadaI } from '$lib/items';
 import { PersuasãoComida, PersuasãoOuro, RenovaçãoVeloz } from '$lib/spells';
+import { timedDecisions } from '$lib/decisions';
 
 export const createResource = (total: number = 0, growth: number = 0) => {
 	const { subscribe, set, update } = writable({
@@ -201,6 +203,12 @@ export const gameState: GameStateType = {
 	},
 	endDay() {
 		gameState.day.increment();
+
+		/**
+		 * @description Atualiza as decisões predefinidas por dia
+		 */
+		decisions.set(timedDecisions[get(gameState.day)]);
+
 		/**
 		 * @description Atualiza o ouro do jogador com o crescimento diário.
 		 */
@@ -269,8 +277,31 @@ gameState.logs.add({
 	time: new Date(946684800000)
 });
 
-gameState.inventory.add(Enlatados);
+const createDecisions = () => {
+	const { subscribe, set, update } = writable<Decision[]>([]);
+	return {
+		subscribe,
+		set,
+		update,
+		add: (decision: Decision) => {
+			update((n) => [...n, decision]);
+		},
+		remove: (id: number) => {
+			update((n) => n.filter((decision) => decision.id !== id));
+		}
+	};
+};
 
-gameState.inventory.add(MagiaCaçadaI);
+export const decisions = createDecisions();
 
-shop.items.add(Enlatados);
+const onStart = () => {
+	gameState.inventory.add(Enlatados);
+
+	gameState.inventory.add(MagiaCaçadaI);
+
+	shop.items.add(Enlatados);
+
+	decisions.set(timedDecisions[1]);
+};
+
+onStart();

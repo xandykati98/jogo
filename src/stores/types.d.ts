@@ -57,6 +57,21 @@ export type Shop = {
 	items: ReturnType<typeof createInventory>;
 };
 
+export interface Decision {
+	id: number;
+	text: string;
+	title: string;
+	image: string;
+	right: {
+		text: string;
+		effect: () => void;
+	};
+	left: {
+		text: string;
+		effect: () => void;
+	};
+}
+
 export type GameStateType = {
 	endDay: () => void;
 	day: ReturnType<typeof createDay>;
