@@ -8,7 +8,7 @@
 	const { gold, food } = gameState;
 </script>
 
-<div class="relative">
+<div class="relative z-[2]">
 	<div class="header">
 		<div class="left absolute">
 			<img src={headerLeft} alt="Header Left" />

@@ -102,6 +102,7 @@
 		height: 400px;
 		background: red;
 		padding: 10px;
+		z-index: 2;
 
 		flex-direction: column;
 		gap: 5px;

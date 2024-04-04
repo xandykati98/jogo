@@ -25,6 +25,7 @@
 		gap: 2px;
 		overflow: auto;
 		flex-direction: column-reverse;
+		z-index: 2;
 		& > .log {
 			background: white;
 			border-radius: 5px;

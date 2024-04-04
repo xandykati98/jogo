@@ -61,14 +61,14 @@
 
 	const handleRightDecision = () => {
 		dispatch('decision', 'right');
-		activeDecision.right.effect();
+		activeDecision.right.effect.activate();
 		decisions.remove(activeDecision.id);
 		prevX = 0;
 		x = 0;
 	};
 	const handleLeftDecision = () => {
 		dispatch('decision', 'left');
-		activeDecision.left.effect();
+		activeDecision.left.effect.activate();
 		decisions.remove(activeDecision.id);
 		prevX = 0;
 		x = 0;
@@ -112,11 +112,21 @@
 						{activeDecision.text}
 					</div>
 					<div class="actions">
-						<button class="left" on:click={handleLeftDecision}>
+						<button class="left action" on:click={handleLeftDecision}>
 							{activeDecision.left.text}
+							{#if activeDecision.left.effect}
+								<div class="pop">
+									{@html activeDecision.left.effect.description}
+								</div>
+							{/if}
 						</button>
-						<button class="right" on:click={handleRightDecision}>
+						<button class="right action" on:click={handleRightDecision}>
 							{activeDecision.right.text}
+							{#if activeDecision.right.effect}
+								<div class="pop">
+									{@html activeDecision.right.effect.description}
+								</div>
+							{/if}
 						</button>
 					</div>
 				</div>
@@ -130,8 +140,13 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		position: relative;
-		height: 100vh;
+		position: fixed;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		z-index: 3;
+		height: 50vh;
+		width: 300px;
 	}
 	.card {
 		height: 50vh;
@@ -183,7 +198,7 @@
 				flex-direction: column;
 				gap: 5px;
 				padding: 10px;
-				& button {
+				& .action {
 					padding: 5px 25px;
 					position: relative;
 					background: #00000066;
@@ -193,6 +208,21 @@
 					cursor: pointer;
 					&:hover {
 						background: #00000099;
+						& .pop {
+							display: block;
+						}
+					}
+					& .pop {
+						position: absolute;
+						top: 100%;
+						left: 50%;
+						transform: translateX(-50%);
+						background: #000;
+						padding: 5px;
+						display: none;
+						color: #fff;
+						font-size: 12px;
+						z-index: 2;
 					}
 					&::after {
 						position: absolute;

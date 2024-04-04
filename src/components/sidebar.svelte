@@ -12,7 +12,7 @@
 	const { isMagicTreeOpen, isInventoryOpen, isShopOpen, closeAll } = gameState.sideInterface;
 </script>
 
-<div class="sidebar absolute">
+<div class="sidebar absolute z-[2]">
 	<MagicTree />
 	<Inventory />
 	<Shop />

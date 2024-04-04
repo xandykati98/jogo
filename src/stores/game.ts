@@ -202,12 +202,20 @@ export const gameState: GameStateType = {
 		}
 	},
 	endDay() {
+		if (get(decisions).length > 0) {
+			gameState.logs.add({
+				message: `Conclua todas as decisões antes de avançar para o próximo dia.`,
+				type: 'magic'
+			});
+			return;
+		}
+
 		gameState.day.increment();
 
 		/**
 		 * @description Atualiza as decisões predefinidas por dia
 		 */
-		decisions.set(timedDecisions[get(gameState.day)]);
+		decisions.set(timedDecisions[get(gameState.day)] || []);
 
 		/**
 		 * @description Atualiza o ouro do jogador com o crescimento diário.

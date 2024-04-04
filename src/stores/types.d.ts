@@ -64,11 +64,17 @@ export interface Decision {
 	image: string;
 	right: {
 		text: string;
-		effect: () => void;
+		effect: {
+			description: string;
+			activate: () => void;
+		};
 	};
 	left: {
 		text: string;
-		effect: () => void;
+		effect: {
+			description: string;
+			activate: () => void;
+		};
 	};
 }
 
