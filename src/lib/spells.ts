@@ -1,6 +1,7 @@
 import { gameState, shop } from '../stores/game';
+import type { MagicTreeSpell } from '../stores/types';
 
-export const RenovaçãoVeloz = {
+export const RenovaçãoVeloz: MagicTreeSpell = {
 	id: 1,
 	tier: 1,
 	name: 'Renovação Veloz',
@@ -13,7 +14,7 @@ export const RenovaçãoVeloz = {
 		gameState.rally.incrementTotal(0.1);
 	}
 };
-export const PersuasãoComida = {
+export const PersuasãoComida: MagicTreeSpell = {
 	id: 2,
 	tier: 1,
 	name: 'Persuasão - Comida',
@@ -25,7 +26,7 @@ export const PersuasãoComida = {
 		// TODO
 	}
 };
-export const PersuasãoOuro = {
+export const PersuasãoOuro: MagicTreeSpell = {
 	id: 3,
 	tier: 1,
 	name: 'Persuasão - Ouro',

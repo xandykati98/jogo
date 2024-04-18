@@ -4,7 +4,8 @@ import {
 	createBoolean,
 	createDay,
 	createLogs,
-	createInventory
+	createInventory,
+	type EquipableItemCreate
 } from './game';
 import type { Writable } from 'svelte/store';
 
@@ -42,7 +43,7 @@ export interface EquipableItem extends Item {
 interface Consumable extends Item {
 	effect: () => void;
 }
-type GeneralItem = Item | Consumable;
+type GeneralItem = Item | Consumable | EquipableItem;
 
 export type MagicTreeSpell = {
 	id: number;
@@ -76,11 +77,13 @@ export type HeroSkill = {
 	description: string;
 	icon: string;
 	tier: number;
+	available: boolean;
+	cooldown: number;
 	effect: () => void;
 };
 
-export type HeroType = 'mage' | 'warrior' | 'thief'
-export type Race = 'human' | 'goblin'
+export type HeroType = 'mage' | 'warrior' | 'thief';
+export type Race = 'human' | 'goblin';
 
 export interface Hero {
 	id: number;
@@ -90,35 +93,41 @@ export interface Hero {
 	race: Race;
 	icon: string;
 	image: string;
-	level: Writable<number>;
-	experience: Writable<number>;
-	health: Writable<number>;
-	mana: Writable<number>;
+	level: number;
+	experience: number;
+	health: number;
+	mana: number;
 	stats: {
-		strength: Writable<number>;
-		intelligence: Writable<number>;
-		dexterity: Writable<number>;
+		strength: number;
+		intelligence: number;
+		dexterity: number;
 	};
+	/**
+	 * @description Tree de skills do herói
+	 */
 	skills: {
-		[type: string]: {
+		[tree_name: string]: {
 			name: string;
 			description: string;
 			color: string;
 			icon: string;
+			available: boolean;
 			tree: HeroSkill[];
 		};
 	};
 	slots: {
-		weapon: Writable<null | EquipableItem>;
-		chestplate: Writable<null | EquipableItem>;
-		legs: Writable<null | EquipableItem>;
-		boots: Writable<null | EquipableItem>;
-		gloves: Writable<null | EquipableItem>;
-		ring: Writable<null | EquipableItem>;
-		necklace: Writable<null | EquipableItem>;
-		head: Writable<null | EquipableItem>;
+		weapon?: EquipableItem | EquipableItemCreate | null;
+		chestplate?: EquipableItem | EquipableItemCreate | null;
+		legs?: EquipableItem | EquipableItemCreate | null;
+		boots?: EquipableItem | EquipableItemCreate | null;
+		gloves?: EquipableItem | EquipableItemCreate | null;
+		ring?: EquipableItem | EquipableItemCreate | null;
+		necklace?: EquipableItem | EquipableItemCreate | null;
+		head?: EquipableItem | EquipableItemCreate | null;
 	};
 }
+
+type Slot = Writable<null | EquipableItem>;
 
 export interface Decision {
 	id: number;

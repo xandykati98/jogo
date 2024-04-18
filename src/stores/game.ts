@@ -1,4 +1,4 @@
-import { writable, get } from 'svelte/store';
+import { writable, get, type Writable } from 'svelte/store';
 import type {
 	Consumable,
 	GameStateType,
@@ -10,12 +10,16 @@ import type {
 	MagicTreeSpell,
 	Shop,
 	Decision,
-	Hero
+	Hero,
+	EquipableItem,
+	HeroSkill,
+	Slot
 } from './types';
 import { createId, richText } from '$lib';
 import { Enlatados, MagiaCaçadaI } from '$lib/items';
 import { PersuasãoComida, PersuasãoOuro, RenovaçãoVeloz } from '$lib/spells';
 import { timedDecisions } from '$lib/decisions';
+import { Bruxa } from '$lib/heroes';
 
 export const createResource = (total: number = 0, growth: number = 0) => {
 	const { subscribe, set, update } = writable({
@@ -45,6 +49,21 @@ export const createResource = (total: number = 0, growth: number = 0) => {
 				n.total = value;
 				return n;
 			});
+		}
+	};
+};
+
+export const createNumber = (value: number = 0) => {
+	const { subscribe, set, update } = writable(value);
+	return {
+		subscribe,
+		set,
+		update,
+		increment: (value: number) => {
+			update((n) => n + value);
+		},
+		decrement: (value: number) => {
+			update((n) => n - value);
 		}
 	};
 };
@@ -106,7 +125,7 @@ export const createDay = () => {
 	};
 };
 
-export interface LogCreate extends Omit<Log, 'day' | 'time' | 'id'> { }
+export interface LogCreate extends Omit<Log, 'day' | 'time' | 'id'> {}
 export const createLogs = () => {
 	const { subscribe, set, update } = writable<Log[]>([]); // Specify the type of the initial value as an empty array of type Log[]
 	return {
@@ -137,7 +156,76 @@ export const createLogs = () => {
 	};
 };
 
-export interface GeneralItemCreate extends Omit<GeneralItem, 'id'> { }
+export interface GeneralItemCreate extends Omit<GeneralItem, 'id'> {}
+export interface EquipableItemCreate extends Omit<EquipableItem, 'id'> {}
+
+export const createEquipableItem = (item: EquipableItemCreate) => {
+	const { subscribe, set, update } = writable<EquipableItem>({
+		...item,
+		id: createId()
+	});
+
+	return {
+		subscribe,
+		set,
+		update,
+		equip: () => {
+			update((n) => {
+				n.equip();
+				return n;
+			});
+		},
+		unEquip: () => {
+			update((n) => {
+				n.unEquip();
+				return n;
+			});
+		}
+	};
+};
+
+export const createSlot = (item: EquipableItem | null) => {
+	const { subscribe, set, update } = writable<EquipableItem | null>(item);
+
+	return {
+		subscribe,
+		set,
+		update,
+		equip: () => {
+			get({ subscribe })?.equip();
+		},
+		unEquip: () => {
+			get({ subscribe })?.unEquip();
+		}
+	};
+};
+
+const createHero = (hero: Hero) => {
+	interface HeroStore extends Hero {
+		slots: {
+			[key: string]: Writable<Slot>;
+		};
+	}
+	const { subscribe, set, update } = writable<HeroStore>({
+		...hero,
+		slots: {
+			weapon: createSlot(hero.slots.weapon),
+			chestplate: createSlot(null),
+			legs: createSlot(null),
+			boots: createSlot(null),
+			gloves: createSlot(null),
+			ring: createSlot(null),
+			necklace: createSlot(null),
+			head: createSlot(null)
+		}
+	});
+	return {
+		subscribe,
+		set,
+		update
+	};
+};
+
 type CreateInventoryOptions = {
 	size?: number;
 };
@@ -332,6 +420,8 @@ const onStart = () => {
 	gameState.inventory.add(MagiaCaçadaI);
 
 	shop.items.add(Enlatados);
+
+	heroes.add(Bruxa);
 
 	decisions.set(timedDecisions[1]);
 };

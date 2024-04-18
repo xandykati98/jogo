@@ -1,6 +1,6 @@
 import { richText } from '$lib';
-import { gameState, type GeneralItemCreate } from '../stores/game';
-import type { Consumable, GeneralItem, Item } from '../stores/types';
+import { gameState } from '../stores/game';
+import type { Consumable, EquipableItem, GeneralItem, Item } from '../stores/types';
 
 export const Enlatados: Omit<Consumable & GeneralItem, 'id'> = {
 	type: 'consumable',
@@ -24,4 +24,18 @@ export const MagiaCaçadaI: Omit<Consumable & GeneralItem, 'id'> = {
 	effect: () => {
 		// TODO
 	}
+};
+
+export const Cajado: Omit<EquipableItem & GeneralItem, 'id'> = {
+	name: 'Cajado',
+	description: richText('Um cajado simples.'),
+	icon: 'staff',
+	type: 'weapon',
+	cost: 100,
+	rarity: 'rare',
+	plusStats: {
+		intelligence: 5
+	},
+	equip: () => {},
+	unEquip: () => {}
 };

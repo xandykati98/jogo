@@ -24,7 +24,19 @@
 		class="item"
 		on:click={() => {
 			if ($isShopOpen) {
-				return isShopOpen.toggle()
+				return isShopOpen.toggle();
+			}
+			closeAll();
+			isShopOpen.toggle();
+		}}
+	>
+		<img src={shop} alt="Quests" />
+	</button>
+	<button
+		class="item"
+		on:click={() => {
+			if ($isShopOpen) {
+				return isShopOpen.toggle();
 			}
 			closeAll();
 			isShopOpen.toggle();
@@ -36,7 +48,7 @@
 		class="item"
 		on:click={() => {
 			if ($isInventoryOpen) {
-				return isInventoryOpen.toggle()
+				return isInventoryOpen.toggle();
 			}
 			closeAll();
 			isInventoryOpen.toggle();
